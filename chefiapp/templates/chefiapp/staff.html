@@ -1,0 +1,90 @@
+{% extends "chefiapp/layout.html" %}
+
+{% block body %}
+
+    <div class="container" style="width:90%; margin-top: 52px">
+        <div class="row">
+            <h3 class="text-center" style="margin-bottom: 48px">Staff Members</h3>
+            <!-- MESSAGE FROM BACKEND -->
+            {% if message %}
+                <div style="width: 50%"class="alert alert-primary text-center" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <!-- Loop all active users -->
+                    {% for user in allUsers %}
+                        {% if user.name %}
+                            <div class="col-sm-6 col-md-4 col-lg-3 mx-4 my-2">
+                                <div class="card">
+                                    <div class="d-flex">
+                                        <!-- User profile image -->
+                                        <div class="p-3">
+                                            <a href="{% url 'profile' user.id %}">
+                                                <img src="/static/chefiapp/image.jpeg" class="img-fluid rounded-circle" alt="Profile Picture" style="width: 60px; height: 60px;">
+                                            </a>
+                                        </div>
+                                        <div class="flex-grow-1 p-3">
+                                            <!-- User name -->
+                                            <a href="{% url 'profile' user.id %}" class="text-decoration-none text-black">
+                                                <h5 class="card-title">{{ user.name }}</h5>
+                                            </a>
+                                            <!-- User department -->
+                                            <p class="card-text text-secondary">{{ user.department}}</p>
+                                            <a href="{% url 'schedule' user=user.id %}" class="text-decoration-none text-black">
+                                                Schedule
+                                            </a>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {%if new_staff %}
+                <hr class="my-4">
+
+                
+                    <h3 class="text-center" style="margin-bottom: 48px; margin-top: 24px">Staff Pre-Created</h3>
+                
+                    <div class="row align-items-center justify-content-center">
+                        <!-- Loop all pre-created users -->
+                        {% for user in new_staff %}
+                            {% if user.name %}
+                                <div class="col-sm-6 col-md-4 col-lg-3 mx-4 my-2">
+                                    <div class="card">
+                                        <div class="d-flex">
+                                            <!-- User profile image -->
+                                            <div class="p-3">
+                                                <a href="{% url 'profile' user.id %}">
+                                                    <img src="/static/chefiapp/image.jpeg" class="img-fluid rounded-circle" alt="Profile Picture" style="width: 60px; height: 60px;">
+                                                </a>
+                                            </div>
+                                            <div class="flex-grow-1 p-3">
+                                                <!-- User name -->
+                                                <a href="{% url 'profile' user.id %}" class="text-decoration-none text-black">
+                                                    <h5 class="card-title">{{ user.name }}</h5>
+                                                </a>
+                                                <!-- User department -->
+                                                <p class="card-text text-secondary">{{ user.department}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.role == 'admin' or user.role == 'manager' %}
+        <div class="justify-content-center text-center" style="margin-top: 52px; margin-bottom: 72px">
+            <a class="btn btn-warning" href="{% url 'new_staff' %}">Add Staff</a>
+        </div>
+    {% endif %}
+{% endblock %}

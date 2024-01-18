@@ -1,0 +1,49 @@
+{% extends "chefiapp/layout.html" %}
+
+{% block body %}
+  <div style="margin-top: 72px;" class="container-fluid d-flex justify-content-center align-items-center">
+    <div class="row">
+        <div class="card text-center bg-transparent" style="width: 40rem;">
+            <div class="card-body p-4">
+                <h2 class="mb-4">Register</h2>
+
+                {% if message %}
+                    <div>{{ message }}</div>
+                {% endif %}
+
+                <form action="{% url 'register' %}" method="post" class="mb-3 pt-4">
+                    {% csrf_token %}
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-4 col-form-label text-end">Username</label>
+                        <div class="col-sm-7">
+                            <input autofocus class="form-control" style="border: 0.5px solid lightgray; background-color: transparent;" type="text" name="username" >
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-4 col-form-label text-end">Email</label>
+                        <div class="col-sm-7">
+                            <input autofocus class="form-control" style="border: 0.5px solid lightgray; background-color: transparent;" type="Email" name="email" >
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-4 col-form-label text-end">Password</label>
+                        <div class="col-sm-7">
+                            <input class="form-control" style="border: 0.5px solid lightgray; background-color: transparent;" type="password" name="password">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-4 col-form-label text-end">Password (Again)</label>
+                        <div class="col-sm-7">
+                            <input class="form-control" style="border: 0.5px solid lightgray; background-color: transparent;" type="password" name="confirmation">
+                        </div>
+                    </div>
+                    <button class="btn btn-warning btn-block" type="submit">Register</button>
+                </form>
+
+                <p class="text-black fs-6 pt-2">Already have an account?<a href="{% url 'login' %}" class="text-decoration-none text-black"> Login here.</a></p>
+            </div>
+        </div>
+    </div>
+  </div>
+
+{% endblock %}

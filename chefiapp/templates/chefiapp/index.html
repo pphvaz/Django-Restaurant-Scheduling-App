@@ -1,0 +1,21 @@
+{% extends "chefiapp/layout.html" %}
+
+{% block body %}
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+    <div style="margin-top: 72px;" class="container-fluid d-flex justify-content-center align-items-center">
+        <div class="row">
+            <div class="card text-center bg-transparent" style="max-width: 30rem;">
+                <div class="card-body p-10">
+                    <h1 class="card-title">Welcome to Chef-IA</h1>
+                    <p class="card-text p-2 text-secondary">
+                        Management Chef.
+                    </p>
+                    <a href="{% url 'login' %}" class="btn btn-warning">Begin</a>
+                </div>
+              </div>
+        </div>
+    </div>
+{% endblock %}

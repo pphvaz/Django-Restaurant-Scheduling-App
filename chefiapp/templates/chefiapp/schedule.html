@@ -1,0 +1,534 @@
+{% extends "chefiapp/layout.html" %}
+
+{% block body %}
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="container">
+            <div class="row"> 
+                <h1 class="text-center">{{ schedule_user }}'s Schedule</h1>
+            </div>    
+            <div class="d-flex justify-content-center mt-4">
+                <div class="px-2" style="max-width: 200px;">
+                    <form action="{% url 'new_month_data' user=schedule_user.id %}" method="POST">
+                        {% csrf_token %}
+                        <select name="selected_month" class="form-control dropdown-toggle" data-toggle="dropdown" id="monthDropdown">
+                            <option disabled class="text-center">Month</option>
+                            {% for month in months %}
+                                <option class="text-center" value="{{ month.0 }}"
+                                {% if month.0 == current_month %} 
+                                    selected
+                                {% endif %}>
+                                {{ month.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        </div>
+                        <div class="px-2" style="max-width: 100px">
+                            <select name="selected_year" class="form-control dropdown-toggle" data-toggle="dropdown" id="yearDropdown">
+                                <option selected disabled class="text-center">Year</option>
+                                {% for year in years %}
+                                    <option class="text-center" value="{{ year.0 }}"
+                                    {% if year.0 == current_year %} 
+                                    selected
+                                {% endif %}>
+                                {{ year.1 }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- BUTTON TO ADD A SCHEDULE IF NONE -->
+                        {% if user.role == 'management' %}
+                            <button type="submit" class="btn btn-warning" style="display: none;" id="addSchedule">Add</button>
+                        {% endif %}
+                </form>
+            </div>
+            <div class="text-center mt-4" id="message">
+            </div>
+            <div class="row flex mt-4">
+                <div class="container">
+                    <div class="row d-flex justify-content-left" id="cardContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const selected_month = document.querySelector('#monthDropdown').value;
+            const selected_year = document.querySelector('#yearDropdown').value;
+            
+            days = [
+                {% for day in user_days %}
+                    {
+                        'date': '{{ day.date }}',
+                        'start_hour': '{% if day.start_hour %}{{ day.start_hour|date:"H:i" }}{% else %}00:00{% endif %}',
+                        'end_hour': '{% if day.end_hour %}{{ day.end_hour|date:"H:i" }}{% else %}00:00{% endif %}',
+                        'dayoff': {% if day.is_dayoff %} true {% else %} false {% endif %}
+                    },
+                {% endfor %}
+            ];
+
+            const listContainer = document.querySelector('#cardContainer');
+            const message = document.querySelector('#message');
+            const addSchedule = document.querySelector('#addSchedule');
+
+            message.innerHTML = '';
+
+            // JavaScript code to check if the user has a calendar object for a certain month
+            const userCalendar = [
+                {% for calendar_entry in user_calendar %}
+                    {
+                        'month': '{{ calendar_entry.month }}',
+                        'year': '{{ calendar_entry.year }}'
+                    },
+                {% endfor %}
+            ];
+
+            addScheduleButton = document.querySelector('#addSchedule');
+            console.log(addScheduleButton);
+        
+            function createCards(days, daysInMonth) {
+
+                const selected_month = document.querySelector('#monthDropdown').value;
+                const selected_year = document.querySelector('#yearDropdown').value;
+                
+                // Search for the first day of the week match with day of month
+                const monthIndex = monthNames.findIndex(month => month === selected_month);
+
+                 // Days of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+                // Clear previous content before appending new content
+                listContainer.innerHTML = '';
+
+                // Assuming `daysInMonth` is the total number of days in the month
+                let startDayOfMonth = new Date(selected_year, monthIndex, 1).getDay(); // Get the starting day index (0-6) of the month
+                
+                let i = 1;
+
+                let emptyDays = startDayOfMonth - 2 ; // Empty placeholders at the start
+                    while (emptyDays >= 0) {
+                        const emptyCard = document.createElement('div');
+                        // Set styles or classes for an empty card
+                        emptyCard.classList.add('card', 'col-1', 'mb-3', 'py-2', 'mx-1', 'align-items-center', 'justify-content-center');
+                        emptyCard.style.width = '180px'; 
+                        emptyCard.style.height = 'auto'; 
+                        emptyCard.style.display = 'flex';
+                        emptyCard.style.flexDirection = 'column';      
+                        // ...
+                        // Append the empty card to the container
+                        listContainer.appendChild(emptyCard);
+                        emptyDays--;
+                    }
+            
+                do {
+                    
+                    const date = new Date(selected_year, monthIndex, i);
+                    const isoDateString = date.toISOString().split('T')[0];
+                    const todayObj = new Date("{{today}}");
+                    const dayOfWeekNumber = date.getDay();
+                    
+                    
+                    
+                    // Get the weekday name based on the dayOfWeekNumber
+                    const weekday = daysOfWeek[dayOfWeekNumber];
+
+                    console.log(dayOfWeekNumber);
+
+                    // CREATE CARD
+                    const cardId = `card-${i}`;
+                    const card = document.createElement('div');
+                    card.id = cardId;
+                    card.classList.add('card', 'col-1', 'mb-3', 'py-2', 'mx-1', 'align-items-center', 'justify-content-center');
+                    card.style.width = '180px'; 
+                    card.style.height = 'auto'; 
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';                    
+                   
+                    // CREATE CARD BODY
+                    const cardBody = document.createElement('div');
+                    cardBody.classList.add('card-body', 'text-center');
+
+                    // CREATE CARD TITLE
+                    const cardTitle = document.createElement('h4');
+                    cardTitle.classList.add('card-title', 'text-center');                    
+
+                    // CREATE CARD SUBTITLE
+                    const cardSubTitle = document.createElement('h6');
+                    cardSubTitle.classList.add('card-subtitle', 'text-center', 'mb-2');
+
+                    // CREATE CARD BODY TEXT
+                    const cardText = document.createElement('p');
+                    cardText.classList.add('text-center', 'card-text', 'pt-2');
+                    cardText.id = `cardText-${card.id}`;
+
+                    // CREATE A BODY DIV TO PUT THE BUTTON
+                    const div = document.createElement('div');
+                    div.classList.add('row');
+                    div.id = `div-${cardId}`;
+
+                    // CREATE EDIT BUTTON AT THE BOTTOM OF THE CARD
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.classList.add('btn','btn-link', 'btn-sm');
+                    editButton.id = `button-${cardId}`;
+
+                    div.appendChild(editButton);
+                    cardText.appendChild(div);
+
+                    // SET CARD ATTRIBUTES TO BE SEND TO BACKEND
+                    card.setAttribute('data-custom-date', isoDateString);
+                    card.setAttribute('data-user-id', '{{ user.id }}');
+
+                    // CHECK IN THE LOOP IF THE LOOP NUMBER IS A OBJECT DAY IN THE USER CALENDAR
+                    const currentDay = days.find(day => {
+                        const dateObject = new Date(day.date);
+                        const dayOfMonth = dateObject.getDate();
+                        return dayOfMonth === i;
+                    });
+
+                    cardTitle.textContent = `${i}`;
+                    cardSubTitle.textContent = weekday;
+                    
+                    // IF THE LOOP DAY IS A OBJECT DATE THEN INPUT THE VALUES INSIDE THE CARD
+                    if (currentDay) {
+                        card.setAttribute('data-dayoff', currentDay.dayoff);
+                        const dateObject = new Date(currentDay.date);
+                        if (currentDay.dayoff) {
+                            cardText.textContent = 'Day off';
+                            card.style.backgroundColor = 'lightgray';
+                            card.style.color = 'black';
+                            
+                        } else {
+                            cardText.textContent = `${currentDay.start_hour} - ${currentDay.end_hour}`;
+                            card.setAttribute('data-dayoff', 'false');
+
+                        }
+                    } else {
+                        cardText.textContent = '-';
+                        cardText.classList.add('text-center', 'card-text', 'pt-2', 'text-secondary');
+                        card.setAttribute('data-dayoff', false);
+                    }
+                    
+                    // EDIT CARDS BY ITS DATE
+                    if (date.getTime() < todayObj.getTime()) {
+                        card.style.backgroundColor = 'lightgray';
+                        card.style.color = 'darkgray';
+                        editButton.style.display = 'none';
+                    } else if (date.getTime() === todayObj.getTime()) {
+                        cardText.style.fontWeight = 'bold';
+                        card.style.border = '4px solid black';
+                    } else {
+                        console.log(`${date} is BIGGER than ${todayObj}`);
+                    }
+
+                    cardBody.appendChild(cardTitle);
+                    cardBody.appendChild(cardSubTitle);
+                    cardBody.appendChild(cardText);
+                    card.appendChild(cardBody);
+                    cardBody.appendChild(div);
+
+                    listContainer.appendChild(card);
+
+                    // Create Input Fields to Card When Clicked
+                    const createFormElements = (cardId, startHour, endHour, date, userId, dayoff) => {
+                        
+                        // Define variables to store references to the elements
+                        let startHourInputSaved, label1Saved, endHourInputSaved, label2Saved;
+
+                        const div = document.getElementById(`div-${card.id}`);
+                        const cardText = document.getElementById(`cardText-${card.id}`);
+                        const editButton = document.getElementById(`button-${cardId}`);
+                        
+                        // Remove the Edit button
+                        editButton.style.display = 'none';
+
+                        cardText.style.display = 'none';
+                    
+                        // Create the Save button
+                        const saveButton = document.createElement('button');
+                        saveButton.textContent = 'Save';
+                        saveButton.classList.add('btn', 'btn-sm', 'btn-primary', 'mr-1', 'mx-1');
+                    
+                        // Create the Cancel button
+                        const cancelButton = document.createElement('button');
+                        cancelButton.textContent = 'Cancel';
+                        cancelButton.classList.add('btn', 'btn-sm', 'btn-secondary');
+                    
+                        const form = document.createElement('form');
+                        form.classList.add('mb-2');
+                    
+                        const label1 = document.createElement('label');
+                        label1.classList.add('text-muted', 'form-text', 'mb-2');
+                        label1.textContent = 'Start:';
+                    
+                        const startHourInput = document.createElement('input');
+                        startHourInput.id = `start-${card.id}`;
+                        startHourInput.classList.add('form-control', 'text-center', 'mb-2');
+                        startHourInput.setAttribute('type', 'text');
+                        startHourInput.setAttribute('value', startHour.slice(0, 5));
+                        startHourInput.setAttribute('placeholder', 'hh:mm');
+                    
+                        const label2 = document.createElement('label');
+                        label2.classList.add('text-muted', 'form-text', 'mb-2');
+                        label2.textContent = 'End:';
+                    
+                        const endHourInput = document.createElement('input');
+                        endHourInput.id = `end-${card.id}`;
+                        endHourInput.classList.add('form-control', 'text-center', 'mb-2');
+                        endHourInput.setAttribute('type', 'text');
+                        endHourInput.setAttribute('value', endHour.slice(0, 5));
+                        endHourInput.setAttribute('placeholder', 'hh:mm');
+
+                        const toggleDiv = document.createElement('div');
+                        toggleDiv.classList.add('form-check','form-switch','d-flex', 'justify-content-center', 'align-items-center', 'mt-2', 'mb-4');
+
+                        const label3 = document.createElement('label');
+                        label3.classList.add('text-muted', 'form-text');
+                        label3.textContent = 'Dayoff:';
+
+                        const dayOffToggle = document.createElement('input');
+                        dayOffToggle.type = 'checkbox';
+                        dayOffToggle.id = `dayOffToggle-${cardId}`;
+                        dayOffToggle.classList.add('form-check-input');
+                        dayOffToggle.checked = dayoff;
+
+                        form.appendChild(label3); // Dayoff:
+                        toggleDiv.appendChild(dayOffToggle); // Toggle button
+                        form.appendChild(toggleDiv); // Toggle div
+                        form.appendChild(label1); // Start Hour:
+                        form.appendChild(startHourInput); // Start Hour Input
+                        form.appendChild(label2); // End Hour:
+                        form.appendChild(endHourInput); // End Hour Input
+                        
+                        cardBody.appendChild(form);
+                        
+                        // Append Save and Cancel buttons
+                        cardBody.appendChild(saveButton);
+                        cardBody.appendChild(cancelButton);
+
+                        if (dayoff) {
+                            startHourInput.style.display = 'none';
+                            label1.style.display = 'none';
+                            endHourInput.style.display = 'none';
+                            label2.style.display = 'none';
+                        }
+
+                        // Store references to the elements before removing them
+                        startHourInputSaved = startHourInput;
+                        label1Saved = label1;
+                        endHourInputSaved = endHourInput;
+                        label2Saved = label2;
+
+                        // Adding an event listener to the dayOffToggle checkbox
+                        dayOffToggle.addEventListener('change', function() {
+                            if (this.checked) {
+                                // If the checkbox is checked, remove the elements
+                                startHourInput.style.display = 'none';
+                                label1.style.display = 'none';
+                                endHourInput.style.display = 'none';
+                                label2.style.display = 'none';
+
+                            } else {
+                                // If the checkbox is unchecked, add the saved elements back
+                                startHourInput.style.display = 'block';
+                                label1.style.display = 'block';
+                                endHourInput.style.display = 'block';
+                                label2.style.display = 'block';
+                            }
+                        });
+                    
+                        // Add event listener for Save button
+                        saveButton.addEventListener('click', function() {
+                            // Get the input values from the form fields
+
+                            const start = document.getElementById(`start-${cardId}`).value;
+                            const end = document.getElementById(`end-${cardId}`).value;
+
+                            // Prepare the data to be sent to the backend
+                            const dataToSave = {
+                            start_hour: start,
+                            end_hour: end,
+                            userId: userId,
+                            date: date,
+                            dayoff: dayOffToggle.checked,
+                            };
+                            
+                            // Make a fetch request to save the data
+                            fetch('/save-schedule-data/', { 
+                                method: 'POST', // or 'PUT', 'PATCH', etc., depending on your backend API
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCSRFToken(),
+                                },
+                                body: JSON.stringify(dataToSave)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+
+                                // Hide form and buttons, display edit button and updated schedule info
+                                form.style.display = 'none';
+                                saveButton.style.display = 'none';
+                                cancelButton.style.display = 'none';
+                                editButton.style.display = 'block';
+                                cardText.style.display = 'block';
+                                
+                                if (data.dayoff) {
+                                    cardText.innerHTML = 'Day off';
+                                    card.style.backgroundColor = 'lightgray';
+
+                                }  else {
+                                    // Display schedule information
+                                    cardText.innerHTML = `${data.start_hour.slice(0, 5)} - ${data.end_hour.slice(0, 5)}`;
+                                    card.style.backgroundColor = 'white';
+                                }
+                                
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                // Handle error scenarios (e.g., display error message)
+                            });
+
+                        });
+                    
+                        // Add event listener for Cancel button
+                        cancelButton.addEventListener('click', function() {
+                            // Handle canceling the editing process
+                            // For example, you might want to revert changes or close the form
+                            // Remove the Edit button
+                            editButton.style.display = 'block';
+                            cardText.style.display = 'block';
+                            form.style.display = 'none';
+                            saveButton.style.display = 'none';
+                            cancelButton.style.display = 'none';
+                        });
+                    };
+
+                    editButton.addEventListener('click', function() {
+                        const date = card.getAttribute('data-custom-date');
+                        const userId = card.getAttribute('data-user-id');
+                        const dayoff = card.getAttribute('data-dayoff');
+
+                        console.log('Dayoff:', dayoff);
+
+                        const cardId = card.id;
+                    
+                        fetch(`/get-schedule-data?date=${date}&userId=${userId}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log(data);
+                                if (data.status === 'success') {
+                                    const startHour = data.start_hour;
+                                    const endHour = data.end_hour;
+                                    const dayoff = data.dayoff;
+
+                                    console.log('From backend: ', dayoff);
+
+                                    createFormElements(cardId, startHour, endHour, date, userId, dayoff);
+                                    
+                                    // Use startHour and endHour for further processing
+                                } else {
+                                    // Handle the error or show appropriate messages to the user
+                                    const startHour = '';
+                                    const endHour = '';
+                                    const dayoff = data.dayoff;
+
+                                    createFormElements(cardId, startHour, endHour, date, userId, dayoff);
+                                }
+                            })
+                    });
+                    
+                    // Move to the next day
+                    i++;
+                } while(i <= daysInMonth)
+            }
+        
+            const CalendarExists = checkCalendarForMonth(selected_month, selected_year);
+
+            // Create a Date object with the selected year and month (month index starts from 0)
+            const daysInMonth = new Date(selected_year, new Date(Date.parse(selected_month + " 1, 2022")).getMonth() + 1, 0).getDate();
+
+            if (CalendarExists) {
+
+                // Filter the days array to include only days from the selected month
+                const filteredDays = days.filter(day => {
+                    const dateObject = new Date(day.date);
+                    const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(dateObject);
+
+                    return monthName === selected_month;
+                });
+
+
+                createCards(filteredDays, daysInMonth);
+            }
+        
+            // Example usage of checkCalendarForMonth
+            const selectElements = document.querySelectorAll('select');
+            selectElements.forEach(select => {
+                select.addEventListener('change', function() {
+                    const selected_month = document.querySelector('#monthDropdown').value;
+                    const selected_year = document.querySelector('#yearDropdown').value;
+                    // Clear previous content before appending new content
+                    listContainer.innerHTML = '';
+                    message.innerHTML = '';
+
+                    const CalendarExists = checkCalendarForMonth(selected_month, selected_year);
+
+                    // Create a Date object with the selected year and month (month index starts from 0)
+                    const daysInMonth = new Date(selected_year, new Date(Date.parse(selected_month + " 1, 2022")).getMonth() + 1, 0).getDate();
+        
+                    if (CalendarExists) {
+                        
+                        // Filter the days array to include only days from the selected month
+                        const filteredDays = days.filter(day => {
+                            const dateObject = new Date(day.date);
+                            const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(dateObject);
+
+                            return monthName === selected_month;
+                        });
+                        createCards(filteredDays, daysInMonth);
+                    }
+                });
+            });
+        
+            function checkCalendarForMonth(month, year) {
+                for (let i = 0; i < userCalendar.length; i++) {
+                    if (userCalendar[i].month === month && userCalendar[i].year === year) {
+                        console.log(`Calendar object found for ${month} of ${year}`);
+                        addSchedule.style.display = 'none';
+                        return true;
+                    }
+                }
+                console.log(`No calendar object found for ${month} of ${year}`);
+                message.innerHTML = `No data for ${month} of ${year}`;
+                addSchedule.style.display = 'block';
+                return false;
+            }
+            
+            // Fetch CSRF token from cookies
+            function getCSRFToken() {
+                const csrfToken = document.cookie.split('; ').find(cookie => cookie.startsWith('csrftoken='));
+                if (csrfToken) {
+                    return csrfToken.split('=')[1];
+                }
+                return null;
+            }
+        });
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+body, span {
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, strong, a, div {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700; /* Use the desired font weight */
+}
+
+p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400; /* Use the desired font weight */
+}
+
+.custom-input {
+    border: 0.5px solid lightgray; 
+    background-color: transparent;
+}
+
+.cardContainer {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Seven columns */
+    gap: 10px; /* Gap between cards */
+}

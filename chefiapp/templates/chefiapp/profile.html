@@ -1,0 +1,188 @@
+{% extends "chefiapp/layout.html" %}
+
+{% block body %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            var alertDiv = document.getElementById('alert-message');
+
+            // If the alert message div exists, set a timeout to hide it after 5 seconds
+            if (alertDiv) {
+                setTimeout(function() {
+                    alertDiv.style.display = 'none';
+                    alertDiv.innerHTML = '';
+                }, 1500); // 2  000 milliseconds = 5 seconds
+            }
+
+            const actualUser = JSON.parse('{{ actualUser | escapejs }}');
+
+            const usernameInput = document.getElementById('usernameInput');
+            const departmentInput = document.getElementById('departmentInput');
+            const roleInput = document.getElementById('roleInput');
+            const datejoinedInput = document.getElementById('datejoinedInput');
+            const emailInput = document.getElementById('emailInput');
+            const nameInput = document.getElementById('nameInput');
+            const addressInput = document.getElementById('addressInput');
+            const date_of_birthInput = document.getElementById('date_of_birthInput');
+            
+            // Assuming 'actualUser' is passed as context to the template
+            if (actualUser.role === 'management' || actualUser.role === 'admin') {
+                usernameInput.disabled = true;
+                roleInput.disabled = true;
+            
+            } else if (actualUser.id == {{ form_user.id }} ) {
+                departmentInput.disabled = true;
+                roleInput.disabled = true;
+                datejoinedInput.disabled = true;
+
+            } else {
+                usernameInput.disabled = true;
+                departmentInput.disabled = true;
+                roleInput.disabled = true;
+                datejoinedInput.disabled = true;
+                emailInput.disabled = true;
+                nameInput.disabled = true;
+                addressInput.disabled = true;
+                date_of_birthInput.disabled = true;
+            }
+        });
+
+
+    </script>
+    <h1 class="text-center">{{form_user.name}} Profile</h1>
+    <div style="margin-top: 52px;" class="container-fluid d-flex justify-content-center align-items-center">
+        <div class="row mb-4">
+            <div class="card text-center bg-transparent" style="width: 50rem;">
+                <div class="card-body p-4">
+
+                    <div class="p-3">
+                        <a href=""><img src="/static/chefiapp/image.jpeg" class="img-fluid rounded-circle" alt="Profile Picture" style="width: 120px; height: 120px;"></a>
+                    </div>
+
+                {% if user.is_authenticated %}
+
+                {% if message %}
+                    <div id="alert-message" class="d-flex justify-content-center">
+                        {% if message_type == "success" %}
+                                <div style="width: 50" class="alert alert-primary text-center" role="alert">
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% elif message_type == "error" %}
+                                <div style="width: 50" class="alert alert-danger text-center" role="alert">
+                                    {{ message }}
+                                </div>
+                        {% elif message_type == "info" %}
+                                <div style="width: 50" class="alert alert-danger text-center" role="alert">
+                                    {{ message }}
+                                </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                    <form action="" method="post" class="mb-3 pt-2">
+                        {% csrf_token %}
+                        <!-- name -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">NAME</label>
+                            <div class="col-sm-4">
+                                <input id="nameInput" value="{{form_user.name}}" class="form-control" style="border: 0.5px solid lightgray;" type="text" name="name" >
+                            </div>
+                        </div>
+                        <!-- username -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">USERNAME</label>
+                            <div class="col-sm-4">
+                                <input id="usernameInput" value="{{ form_user.username }}" class="form-control" style="border: 0.5px solid lightgray;" type="text" name="username" >
+                            </div>
+                        </div>
+
+                        
+
+                        <!-- date_joined -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">DATE JOINED</label>
+                            <div class="col-sm-4">
+                                <!-- Input with Bootstrap Datepicker -->
+                                <div class="input-group">
+                                    <input id="datejoinedInput" value="{{ form_user.date_joined| date:'Y-m-d'}}" class="form-control" style="border: 0.5px solid lightgray;" type="date" name="dateJoined">
+                                    <button hidden class="btn btn-outline-secondary" type="button">
+                                        <i class="bi bi-calendar"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- email -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">EMAIL</label>
+                            <div class="col-sm-4">
+                                <input id="emailInput" value="{{form_user.email}}" class="form-control" style="border: 0.5px solid lightgray;" type="text" name="email" >
+                            </div>
+                        </div>
+                        
+                        
+                        <!-- address -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">ADDRESS</label>
+                            <div class="col-sm-4">
+                                <input id="addressInput" value="{{form_user.address}}" class="form-control" style="border: 0.5px solid lightgray;" type="text" name="address" >
+                            </div>
+                        </div>
+                        <!-- date_of_birth -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">DATE OF BIRTH</label>
+                            <div class="col-sm-4">
+                                <!-- Input with a calendar icon -->
+                                <div class="input-group">
+                                    <input id="dateofbirthInput" value="{{ form_user.date_of_birth| date:'Y-m-d'}}" class="form-control" style="border: 0.5px solid lightgray;" type="date" name="date_of_birth">
+                                    <button hidden class="btn btn-outline-secondary" type="button">
+                                        <i class="bi bi-calendar"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <!-- role -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">ROLE</label>
+                            <div class="col-sm-4">
+                                <select id="roleInput" name="role" class="form-control dropdown-toggle" data-toggle="dropdown">
+                                    {% for choice in role_choices %}
+                                        <option value="{{ choice.0 }}"
+                                        {% if choice.0 == form_user.role %}
+                                            selected
+                                        {% endif %}
+                                        >{{ choice.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- department -->
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-4 col-form-label text-end">DEPARTMENT</label>
+                            <div class="col-sm-4">
+                                <select id="departmentInput" name="department" class="form-control">
+                                    {% for choice in department_choices %}
+                                        <option value="{{ choice.0 }}"
+                                        {% if choice.0 == form_user.department %} 
+                                            selected
+                                        {% endif %}>
+                                        {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    <button class="btn btn-warning btn-block" type="submit">Save</button>
+                    </form>
+
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+{% endblock %}
