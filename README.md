@@ -1,4 +1,7 @@
 <h2>Django Web Application for Restaurant Employee Scheduling</h2>
+
+##### This was submited as a Final Project to the Harvard's CS50W Introduction To Web Development with Python and JavaScript.
+
 <h2>Overview</h2>
 This web application was developed to address the need for efficient employee schedule management in a restaurant setting. As the manager of a restaurant, I faced challenges in keeping track of the schedules, and this project stems from a desire to create a solution based on my firsthand experience and daily operational needs.
 
