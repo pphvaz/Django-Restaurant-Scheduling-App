@@ -1,20 +1,34 @@
-Distinctiveness and Complexity: 
-The reason I developed this web application was the need to keep a track on employee's schedule for a restaurant that I'm currently the manager. So, this project is unique because it's based in my own experience and my problem to be solved, all data and information needed to make this works comes from my daily life in the restarant.
+Django Web Application for Restaurant Employee Scheduling
+Overview
+This web application was developed to address the need for efficient employee schedule management in a restaurant setting. As the manager of a restaurant, I faced challenges in keeping track of the schedules, and this project stems from a desire to create a solution based on my firsthand experience and daily operational needs.
 
-The app satisfies the complexity required because it utilize Django (with 3 different models) and Javascript (including updating the database using fetch calls). The complexity of the project is not determined just by the number of different models created but buy the user-friendly experience that the apps delivers, all buttons, styles, borders, cards where created and designed properly to be useful, responsive and also with good appearance.
+The application not only fulfills the technical complexity requirements but also prioritizes a user-friendly experience. Utilizing Django with three distinct models and integrating Javascript for seamless database updates, the project goes beyond the mere creation of models. Every aspect, from buttons to styles, borders, and cards, has been meticulously designed to enhance usability, responsiveness, and visual appeal.
 
-Inside the chefiapp's File we have all HTML templates.
+Project Structure
+Files in chefiapp
+Layout.html: Centralizes basic information for the header and footer, utilized across all other templates.
 
-Layout.html: Stores all the basic informations for the header and footer, it's used in all the other templates.
+Index.html: Serves as the 'home' page, welcoming users after logging in and acting as the main gateway to the application.
 
-Index.html: The 'home' page, where the user is redirected after logging-in and also the main page of the web app.
+login.html: Allows users to log in or navigate to the registration page.
 
-login.html: The login page that allows the user to login or redirect to be registered.
+register.html: Enables users to create an account for accessing the web application.
 
-register.html: The register pages allow the user to create an account and use the account inside the web app.
+profile.html: Provides users with access to basic personal information and the ability to make necessary updates. User profiles can be viewed by others simply by using the user's ID in the URL.
 
-profile.html : Allows the user to see basic personal information and also to change the ones he thinks it has to be changed. Ones profiles can be seen by any other user, just by calling the id of the user in the url.
-staff.html: Here there are created cards in a loop for all users with ther names, their job description and also a link to their schedule. All users can see the staff members and also see their profile or their schedule. But just the users with 'manager' status can change the profile data or change the schedule data.
+staff.html: Displays cards for all users, showcasing their names, job descriptions, and links to their schedules. All users can view staff details and schedules, but only users with 'manager' status can edit profile and schedule data.
 
-Schedule.html : The most complex view page, where creates within a loop cards that represents the days of the month for a selected month and year. For the selected month the algorithm will create cards for all days and inside everyday if there is an object created for that exact day and user it will return the data stored in the database. If there's no data for a certain day, it'll let the card empty, but also editable.
-When the user (with status manager) clicks on 'edit' button, it opens a form with a 'dayoff' switch and also start and end hours inputs. If the day-off input is set to True, the inputs will disappear and the user can save the day as a dayoff, this changes the day background color to gray. But, if the user switch the day-off switch to False, the input appears and the user can edit the start and end hour for that day, when the user is done editing, he can click in save and it creates a fetch call that checks with the backend the existence of an object for that exact date and user. If there is an object, it updates the object with the new input datas and returns sucessful. If not, it creates a new object for this day and user and store the input datas in the database.
+schedule.html: The most intricate view page, dynamically generating cards representing each day of the selected month and year. The algorithm populates cards with stored database information, and users with 'manager' status can edit day-off settings, start and end hours. The day-off switch alters card appearance, changing background color to gray for designated days.
+
+Usage
+Profile Editing: Users can view and edit their profiles, with managers having the additional ability to edit staff profiles.
+
+Staff Viewing: All users can view staff details and navigate to individual profiles and schedules.
+
+Schedule Management: Managers can edit schedules, setting day-offs or modifying working hours for each staff member on specific days.
+
+Technologies Used
+Backend: Django
+Frontend: HTML, CSS, Javascript
+Database: SQLite
+Feel free to explore the application and provide feedback! If you have any questions or encounter issues, please reach out.
